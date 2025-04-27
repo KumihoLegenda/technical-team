@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Capybara Adventure</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: #87CEEB;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            user-select: none;
+        }
+
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 400px;
+            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
+            border: 4px solid #333;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        }
+
+        #game-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        #score-display {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 24px;
+            color: #333;
+            font-weight: bold;
+            text-shadow: 1px 1px 2px white;
+        }
+
+        #high-score-display {
+            position: absolute;
+            top: 50px;
+            right: 20px;
+            font-size: 18px;
+            color: #555;
+            text-shadow: 1px 1px 1px white;
+        }
+
+        #game-over {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 36px;
+            z-index: 10;
+        }
+
+        #restart-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 20px;
+            background: #FF5722;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        #restart-btn:hover {
+            background: #E64A19;
+        }
+
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 20px;
+            background: linear-gradient(to right, #8BC34A, #4CAF50);
+        }
+
+        .cloud {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            opacity: 0.8;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas" width="800" height="400"></canvas>
+        <div id="score-display">Score: 0</div>
+        <div id="high-score-display">High Score: 0</div>
+        <div class="ground"></div>
+        <div id="game-over">
+            <h1>GAME OVER</h1>
+            <p id="final-score">Score: 0</p>
+            <button id="restart-btn">Restart</button>
+        </div>
+    </div>
+
+    <script>
+        // ====== ИГРОВЫЕ ПЕРЕМЕННЫЕ ======
+        const canvas = document.getElementById('game-canvas');
+        const ctx = canvas.getContext('2d');
+        const scoreDisplay = document.getElementById('score-display');
+        const highScoreDisplay = document.getElementById('high-score-display');
+        const gameOverScreen = document.getElementById('game-over');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartBtn = document.getElementById('restart-btn');
+
+        // Загрузка изображений
+        const capybaraImg = new Image();
+        capybaraImg.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iNjAiIGhlaWdodD0iNDAiIHg9IjIwIiB5PSIzMCIgZmlsbD0iIzhCNDUxMyIvPjxjaXJjbGUgY3g9IjgwIiBjeT0iNDAiIHI9IjEwIiBmaWxsPSIjQTA1MjJEIi8+PC9zdmc+';
+
+        const cactusImg = new Image();
+        cactusImg.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCA1MCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjMjI4QjIyIi8+PC9zdmc+';
+
+        // Игровые объекты
+        let capybara = {
+            x: 50,
+            y: 300,
+            width: 60,
+            height: 40,
+            velocityY: 0,
+            jumping: false,
+            frame: 0
+        };
+
+        let cacti = [];
+        let clouds = [];
+        let score = 0;
+        let highScore = localStorage.getItem('highScore') || 0;
+        let gameSpeed = 5;
+        let gameLoopId;
+        let cactusInterval;
+        let isGameOver = false;
+
+        // Константы
+        const GRAVITY = 0.5;
+        const JUMP_FORCE = -12;
+        const CACTUS_INTERVAL = 1500;
+
+        // ====== ФУНКЦИИ ИГРЫ ======
+        function initGame() {
+            capybara = {
+                x: 50,
+                y: 300,
+                width: 60,
+                height: 40,
+                velocityY: 0,
+                jumping: false,
+                frame: 0
+            };
+            cacti = [];
+            clouds = [];
+            score = 0;
+            gameSpeed = 5;
+            isGameOver = false;
+            scoreDisplay.textContent = `Score: ${score}`;
+            highScoreDisplay.textContent = `High Score: ${highScore}`;
+            gameOverScreen.style.display = 'none';
+
+            // Создаем несколько облаков
+            for (let i = 0; i < 5; i++) {
+                clouds.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * 150,
+                    width: 60 + Math.random() * 40,
+                    speed: 0.5 + Math.random() * 1
+                });
+            }
+
+            // Запускаем интервалы
+            cactusInterval = setInterval(createCactus, CACTUS_INTERVAL);
+            gameLoopId = requestAnimationFrame(gameLoop);
+        }
+
+        function createCactus() {
+            const height = 50 + Math.random() * 50;
+            cacti.push({
+                x: canvas.width,
+                y: canvas.height - height - 20,
+                width: 30,
+                height: height,
+                passed: false
+            });
+        }
+
+        function jump() {
+            if (!capybara.jumping) {
+                capybara.jumping = true;
+                capybara.velocityY = JUMP_FORCE;
+                // Можно добавить звук прыжка
+            }
+        }
+
+        function update() {
+            // Обновление капибары
+            capybara.velocityY += GRAVITY;
+            capybara.y += capybara.velocityY;
+
+            if (capybara.y > 300) {
+                capybara.y = 300;
+                capybara.jumping = false;
+                capybara.velocityY = 0;
+            }
+
+            // Обновление кактусов
+            cacti.forEach(cactus => {
+                cactus.x -= gameSpeed;
+
+                // Проверка столкновений
+                if (
+                    capybara.x < cactus.x + cactus.width &&
+                    capybara.x + capybara.width > cactus.x &&
+                    capybara.y < cactus.y + cactus.height &&
+                    capybara.y + capybara.height > cactus.y
+                ) {
+                    gameOver();
+                }
+
+                // Обновление счета
+                if (!cactus.passed && cactus.x + cactus.width < capybara.x) {
+                    cactus.passed = true;
+                    score += 10;
+                    scoreDisplay.textContent = `Score: ${score}`;
+                }
+            });
+
+            // Удаление вышедших за экран кактусов
+            cacti = cacti.filter(cactus => cactus.x > -cactus.width);
+
+            // Обновление облаков
+            clouds.forEach(cloud => {
+                cloud.x -= cloud.speed;
+                if (cloud.x < -cloud.width) {
+                    cloud.x = canvas.width;
+                }
+            });
+
+            // Увеличение сложности
+            if (score > 0 && score % 100 === 0) {
+                gameSpeed += 0.2;
+            }
+        }
+
+        function draw() {
+            // Очистка экрана
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Рисуем фон (небо)
+            ctx.fillStyle = '#87CEEB';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Рисуем облака
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+            clouds.forEach(cloud => {
+                ctx.beginPath();
+                ctx.arc(cloud.x, cloud.y, cloud.width / 3, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.width / 3, cloud.y - 10, cloud.width / 4, 0, Math.PI * 2);
+                ctx.arc(cloud.x + cloud.width / 2, cloud.y, cloud.width / 3, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            // Рисуем землю
+            ctx.fillStyle = '#8BC34A';
+            ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
+
+            // Рисуем капибару
+            ctx.drawImage(capybaraImg, capybara.x, capybara.y, capybara.width, capybara.height);
+
+            // Рисуем кактусы
+            cacti.forEach(cactus => {
+                ctx.drawImage(cactusImg, cactus.x, cactus.y, cactus.width, cactus.height);
+            });
+
+            // Анимация бега (просто меняем размер для имитации)
+            capybara.frame++;
+            if (capybara.frame % 10 === 0 && !capybara.jumping) {
+                capybara.height = capybara.height === 40 ? 35 : 40;
+            }
+        }
+
+        function gameOver() {
+            isGameOver = true;
+            cancelAnimationFrame(gameLoopId);
+            clearInterval(cactusInterval);
+
+            // Обновляем рекорд
+            if (score > highScore) {
+                highScore = score;
+                localStorage.setItem('highScore', highScore);
+            }
+
+            // Показываем экран Game Over
+            finalScoreDisplay.textContent = `Score: ${score}`;
+            gameOverScreen.style.display = 'flex';
+        }
+
+        function gameLoop() {
+            if (!isGameOver) {
+                update();
+                draw();
+                gameLoopId = requestAnimationFrame(gameLoop);
+            }
+        }
+
+        // ====== ОБРАБОТЧИКИ СОБЫТИЙ ======
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' || e.key === 'ArrowUp') {
+                if (isGameOver) {
+                    initGame();
+                } else {
+                    jump();
+                }
+            }
+        });
+
+        restartBtn.addEventListener('click', initGame);
+
+        // ====== ЗАПУСК ИГРЫ ======
+        initGame();
+    </script>
+</body>
+</html>
