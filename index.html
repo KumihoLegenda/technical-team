@@ -1,342 +1,577 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capybara Adventure</title>
+    <title>SkinWiki | Главная</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        :root {
+          --bg: #1a1d24;
+          --text: #f4f4f4;
+          --accent: #00ffe7;
+          --card: #242833;
+          --error: #ff4d4d;
+          --success: #27c93f;
+          --section-bg: rgba(36, 40, 51, 0.7);
+        }
+
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Arial', sans-serif;
-            background: #87CEEB;
-            overflow: hidden;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            user-select: none;
+          font-family: 'Rubik', sans-serif;
+          background: var(--bg);
+          color: var(--text);
+          min-height: 100vh;
+          overflow-x: hidden;
         }
 
-        #game-container {
-            position: relative;
-            width: 800px;
-            height: 400px;
-            background: linear-gradient(to bottom, #87CEEB, #E0F7FA);
-            border: 4px solid #333;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+        .particles {
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: -1;
+          overflow: hidden;
         }
 
-        #game-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .particle {
+          position: absolute;
+          background: var(--accent);
+          border-radius: 50%;
+          opacity: 0.3;
+          animation: float linear infinite;
         }
 
-        #score-display {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 24px;
-            color: #333;
-            font-weight: bold;
-            text-shadow: 1px 1px 2px white;
+        @keyframes float {
+          0% { transform: translateY(0) translateX(0); }
+          50% { transform: translateY(-100px) translateX(100px); }
+          100% { transform: translateY(0) translateX(0); }
         }
 
-        #high-score-display {
-            position: absolute;
-            top: 50px;
-            right: 20px;
-            font-size: 18px;
-            color: #555;
-            text-shadow: 1px 1px 1px white;
+        header {
+          padding: 15px 20px;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: rgba(26, 29, 36, 0.8);
+          backdrop-filter: blur(10px);
+          border-bottom: 1px solid rgba(0, 255, 231, 0.1);
+          position: relative;
+          z-index: 10;
         }
 
-        #game-over {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+        .logo {
+          font-size: 20px;
+          font-weight: 700;
+          color: var(--accent);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .logo i {
+          font-size: 22px;
+        }
+
+        .user-info {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+
+        .user-avatar {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: var(--accent);
+          color: var(--bg);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: bold;
+          font-size: 14px;
+        }
+
+        .logout-btn {
+          background: transparent;
+          border: 1px solid var(--accent);
+          color: var(--accent);
+          padding: 6px 12px;
+          border-radius: 6px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          font-family: inherit;
+          font-size: 14px;
+        }
+
+        .logout-btn:hover {
+          background: var(--accent);
+          color: var(--bg);
+        }
+
+        .hero {
+          padding: 40px 20px;
+          text-align: center;
+          position: relative;
+          min-height: calc(100vh - 120px);
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+        }
+
+        .hero-content {
+          max-width: 800px;
+          margin: 0 auto;
+          width: 100%;
+        }
+
+        .hero h1 {
+          font-size: clamp(28px, 5vw, 48px);
+          margin-bottom: 15px;
+          background: linear-gradient(90deg, var(--accent), #00b3ff);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          font-weight: 700;
+          line-height: 1.2;
+        }
+
+        .hero p {
+          font-size: clamp(16px, 2vw, 18px);
+          max-width: 700px;
+          margin: 0 auto 30px;
+          opacity: 0.9;
+          line-height: 1.6;
+        }
+
+        .search-container {
+          width: 100%;
+          max-width: 700px;
+          margin: 0 auto 40px;
+          position: relative;
+        }
+
+        .search-input {
+          width: 100%;
+          padding: 14px 20px;
+          background: rgba(0, 0, 0, 0.3);
+          border: 1px solid rgba(0, 255, 231, 0.2);
+          border-radius: 50px;
+          color: var(--text);
+          font-family: inherit;
+          font-size: 16px;
+          transition: all 0.3s ease;
+          backdrop-filter: blur(5px);
+          padding-right: 50px;
+        }
+
+        .search-input:focus {
+          outline: none;
+          border-color: var(--accent);
+          box-shadow: 0 0 0 2px rgba(0, 255, 231, 0.2);
+        }
+
+        .search-input::placeholder {
+          color: rgba(244, 244, 244, 0.5);
+        }
+
+        .search-btn {
+          position: absolute;
+          right: 10px;
+          top: 50%;
+          transform: translateY(-50%);
+          background: transparent;
+          border: none;
+          color: var(--accent);
+          font-size: 18px;
+          cursor: pointer;
+          width: 40px;
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .sections {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 20px;
+          padding: 0 20px 40px;
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+
+        .section-card {
+          background: var(--section-bg);
+          border-radius: 12px;
+          padding: 25px;
+          transition: all 0.3s ease;
+          border: 1px solid rgba(0, 255, 231, 0.1);
+          backdrop-filter: blur(5px);
+          cursor: pointer;
+          position: relative;
+          overflow: hidden;
+          min-height: 180px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          text-decoration: none;
+          color: inherit;
+        }
+
+        .section-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, rgba(0, 255, 231, 0.05), transparent);
+          z-index: -1;
+        }
+
+        .section-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 10px 25px rgba(0, 255, 231, 0.1);
+          border-color: rgba(0, 255, 231, 0.3);
+        }
+
+        .section-card i {
+          font-size: 32px;
+          margin-bottom: 15px;
+          color: var(--accent);
+          height: 40px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .section-card h2 {
+          font-size: 18px;
+          margin-bottom: 10px;
+          font-weight: 500;
+        }
+
+        .section-card p {
+          opacity: 0.8;
+          font-size: 14px;
+          line-height: 1.5;
+          margin-bottom: 15px;
+        }
+
+        .section-card .btn {
+          display: inline-flex;
+          padding: 8px 15px;
+          background: rgba(0, 255, 231, 0.1);
+          color: var(--accent);
+          border-radius: 6px;
+          font-size: 14px;
+          transition: all 0.3s ease;
+          border: 1px solid rgba(0, 255, 231, 0.2);
+          align-items: center;
+          justify-content: center;
+          width: fit-content;
+        }
+
+        .section-card:hover .btn {
+          background: var(--accent);
+          color: var(--bg);
+        }
+
+        footer {
+          text-align: center;
+          padding: 20px;
+          border-top: 1px solid rgba(0, 255, 231, 0.1);
+          font-size: 14px;
+          opacity: 0.7;
+        }
+
+        /* Анимация загрузки */
+        .loader {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.7);
+          z-index: 1000;
+          justify-content: center;
+          align-items: center;
+          flex-direction: column;
+        }
+
+        .loader.active {
+          display: flex;
+        }
+
+        .loader-spinner {
+          width: 50px;
+          height: 50px;
+          border: 5px solid rgba(0, 255, 231, 0.2);
+          border-radius: 50%;
+          border-top-color: var(--accent);
+          animation: spin 1s linear infinite;
+          margin-bottom: 20px;
+        }
+
+        .loader-text {
+          color: var(--accent);
+          font-size: 18px;
+        }
+
+        @keyframes spin {
+          to { transform: rotate(360deg); }
+        }
+
+        /* Мобильные стили */
+        @media (max-width: 768px) {
+          .hero {
+            min-height: auto;
+            padding: 60px 20px 40px;
+          }
+          
+          .sections {
+            grid-template-columns: 1fr;
+            gap: 15px;
+          }
+          
+          .section-card {
+            min-height: 160px;
+            padding: 20px;
+          }
+          
+          .user-info span {
             display: none;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 36px;
-            z-index: 10;
+          }
         }
 
-        #restart-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 20px;
-            background: #FF5722;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        #restart-btn:hover {
-            background: #E64A19;
-        }
-
-        .ground {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            height: 20px;
-            background: linear-gradient(to right, #8BC34A, #4CAF50);
-        }
-
-        .cloud {
-            position: absolute;
-            background: white;
-            border-radius: 50%;
-            opacity: 0.8;
+        @media (max-width: 480px) {
+          header {
+            padding: 12px 15px;
+          }
+          
+          .logo {
+            font-size: 18px;
+          }
+          
+          .logout-btn {
+            padding: 5px 10px;
+            font-size: 12px;
+          }
+          
+          .user-avatar {
+            width: 32px;
+            height: 32px;
+            font-size: 12px;
+          }
+          
+          .hero h1 {
+            margin-bottom: 10px;
+          }
+          
+          .hero p {
+            margin-bottom: 20px;
+          }
+          
+          .search-input {
+            padding: 12px 16px;
+            font-size: 14px;
+          }
         }
     </style>
 </head>
 <body>
-    <div id="game-container">
-        <canvas id="game-canvas" width="800" height="400"></canvas>
-        <div id="score-display">Score: 0</div>
-        <div id="high-score-display">High Score: 0</div>
-        <div class="ground"></div>
-        <div id="game-over">
-            <h1>GAME OVER</h1>
-            <p id="final-score">Score: 0</p>
-            <button id="restart-btn">Restart</button>
-        </div>
+    <div class="particles" id="particles"></div>
+    
+    <!-- Лоадер -->
+    <div class="loader" id="loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">Загрузка...</div>
     </div>
+    
+    <header>
+        <div class="logo">
+            <i class="fas fa-database"></i>
+            <span>SkinWiki</span>
+        </div>
+        
+        <div class="user-info">
+            <span id="username-display">Гость</span>
+            <div class="user-avatar" id="user-avatar">A</div>
+            <button class="logout-btn" id="logout-btn">Выйти</button>
+        </div>
+    </header>
+    
+    <section class="hero">
+        <div class="hero-content">
+            <h1> Black Russia</h1>
+            <p>Полная база данных всех скинов, транспорта, зданий и аксессуаров. Находите нужные модели быстро и удобно.</p>
+            
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="Поиск по всем категориям..." id="global-search">
+                <button class="search-btn" id="search-btn"><i class="fas fa-search"></i></button>
+            </div>
+            
+            <div class="sections">
+                <a href="skins.html" class="section-card">
+                    <i class="fas fa-user"></i>
+                    <h2>Скины персонажей</h2>
+                    <p>Полная база всех доступных скинов персонажей с подробным описанием.</p>
+                    <span class="btn">Перейти</span>
+                </a>
+                
+                <a href="vehicles.html" class="section-card">
+                    <i class="fas fa-car"></i>
+                    <h2>Транспорт</h2>
+                    <p>Все модели транспорта: автомобили, мотоциклы, лодки.</p>
+                    <span class="btn">Перейти</span>
+                </a>
+                
+                <a href="houses.html" class="section-card">
+                    <i class="fas fa-home"></i>
+                    <h2>Дома</h2>
+                    <p>Полная информация о домах: расположение, стоимость.</p>
+                    <span class="btn">Перейти</span>
+                </a>
+                
+                <a href="apartments.html" class="section-card">
+                    <i class="fas fa-building"></i>
+                    <h2>Квартиры</h2>
+                    <p>Полная информация о квартирах: расположение, стоимость.</p>
+                    <span class="btn">Перейти</span>
+                </a>
+                
+                <a href="garages.html" class="section-card">
+                    <i class="fas fa-warehouse"></i>
+                    <h2>Гаражи</h2>
+                    <p>Информация о расположении всех гаражей.</p>
+                    <span class="btn">Перейти</span>
+                </a>
+                
+                <a href="accessories.html" class="section-card">
+                    <i class="fas fa-tshirt"></i>
+                    <h2>Аксессуары</h2>
+                    <p>Аксессуары для персонажей.</p>
+                    <span class="btn">Перейти</span>
+                </a>
+                
+                <a href="weapons.html" class="section-card">
+                    <i class="fas fa-gun"></i>
+                    <h2>Оружие</h2>
+                    <p>Полный каталог оружия.</p>
+                    <span class="btn">Перейти</span>
+                </a>
+            </div>
+        </div>
+    </section>
+    
+    <footer>
+        <p>© 2023 SkinWiki. Все права защищены.</p>
+    </footer>
 
     <script>
-        // ====== ИГРОВЫЕ ПЕРЕМЕННЫЕ ======
-        const canvas = document.getElementById('game-canvas');
-        const ctx = canvas.getContext('2d');
-        const scoreDisplay = document.getElementById('score-display');
-        const highScoreDisplay = document.getElementById('high-score-display');
-        const gameOverScreen = document.getElementById('game-over');
-        const finalScoreDisplay = document.getElementById('final-score');
-        const restartBtn = document.getElementById('restart-btn');
-
-        // Загрузка изображений
-        const capybaraImg = new Image();
-        capybaraImg.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMDAgMTAwIj48cmVjdCB3aWR0aD0iNjAiIGhlaWdodD0iNDAiIHg9IjIwIiB5PSIzMCIgZmlsbD0iIzhCNDUxMyIvPjxjaXJjbGUgY3g9IjgwIiBjeT0iNDAiIHI9IjEwIiBmaWxsPSIjQTA1MjJEIi8+PC9zdmc+';
-
-        const cactusImg = new Image();
-        cactusImg.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAzMCA1MCI+PHJlY3Qgd2lkdGg9IjMwIiBoZWlnaHQ9IjUwIiBmaWxsPSIjMjI4QjIyIi8+PC9zdmc+';
-
-        // Игровые объекты
-        let capybara = {
-            x: 50,
-            y: 300,
-            width: 60,
-            height: 40,
-            velocityY: 0,
-            jumping: false,
-            frame: 0
-        };
-
-        let cacti = [];
-        let clouds = [];
-        let score = 0;
-        let highScore = localStorage.getItem('highScore') || 0;
-        let gameSpeed = 5;
-        let gameLoopId;
-        let cactusInterval;
-        let isGameOver = false;
-
-        // Константы
-        const GRAVITY = 0.5;
-        const JUMP_FORCE = -12;
-        const CACTUS_INTERVAL = 1500;
-
-        // ====== ФУНКЦИИ ИГРЫ ======
-        function initGame() {
-            capybara = {
-                x: 50,
-                y: 300,
-                width: 60,
-                height: 40,
-                velocityY: 0,
-                jumping: false,
-                frame: 0
-            };
-            cacti = [];
-            clouds = [];
-            score = 0;
-            gameSpeed = 5;
-            isGameOver = false;
-            scoreDisplay.textContent = `Score: ${score}`;
-            highScoreDisplay.textContent = `High Score: ${highScore}`;
-            gameOverScreen.style.display = 'none';
-
-            // Создаем несколько облаков
-            for (let i = 0; i < 5; i++) {
-                clouds.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * 150,
-                    width: 60 + Math.random() * 40,
-                    speed: 0.5 + Math.random() * 1
-                });
+        // Проверка авторизации
+        function checkAuth() {
+            const username = getUsernameFromURL();
+            if (!username) {
+                window.location.href = 'login.html';
             }
-
-            // Запускаем интервалы
-            cactusInterval = setInterval(createCactus, CACTUS_INTERVAL);
-            gameLoopId = requestAnimationFrame(gameLoop);
+            return username;
         }
 
-        function createCactus() {
-            const height = 50 + Math.random() * 50;
-            cacti.push({
-                x: canvas.width,
-                y: canvas.height - height - 20,
-                width: 30,
-                height: height,
-                passed: false
-            });
-        }
-
-        function jump() {
-            if (!capybara.jumping) {
-                capybara.jumping = true;
-                capybara.velocityY = JUMP_FORCE;
-                // Можно добавить звук прыжка
+        // Создаем частицы для фона
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = window.innerWidth < 768 ? 15 : 30;
+            
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.classList.add('particle');
+                
+                const size = Math.random() * 5 + 2;
+                particle.style.width = `${size}px`;
+                particle.style.height = `${size}px`;
+                particle.style.left = `${Math.random() * 100}%`;
+                particle.style.top = `${Math.random() * 100}%`;
+                
+                const duration = Math.random() * 20 + 10;
+                particle.style.animationDuration = `${duration}s`;
+                particle.style.animationDelay = `${Math.random() * 5}s`;
+                
+                particlesContainer.appendChild(particle);
             }
         }
 
-        function update() {
-            // Обновление капибары
-            capybara.velocityY += GRAVITY;
-            capybara.y += capybara.velocityY;
+        // Получаем имя пользователя из URL
+        function getUsernameFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('user');
+        }
 
-            if (capybara.y > 300) {
-                capybara.y = 300;
-                capybara.jumping = false;
-                capybara.velocityY = 0;
-            }
-
-            // Обновление кактусов
-            cacti.forEach(cactus => {
-                cactus.x -= gameSpeed;
-
-                // Проверка столкновений
-                if (
-                    capybara.x < cactus.x + cactus.width &&
-                    capybara.x + capybara.width > cactus.x &&
-                    capybara.y < cactus.y + cactus.height &&
-                    capybara.y + capybara.height > cactus.y
-                ) {
-                    gameOver();
-                }
-
-                // Обновление счета
-                if (!cactus.passed && cactus.x + cactus.width < capybara.x) {
-                    cactus.passed = true;
-                    score += 10;
-                    scoreDisplay.textContent = `Score: ${score}`;
-                }
-            });
-
-            // Удаление вышедших за экран кактусов
-            cacti = cacti.filter(cactus => cactus.x > -cactus.width);
-
-            // Обновление облаков
-            clouds.forEach(cloud => {
-                cloud.x -= cloud.speed;
-                if (cloud.x < -cloud.width) {
-                    cloud.x = canvas.width;
-                }
-            });
-
-            // Увеличение сложности
-            if (score > 0 && score % 100 === 0) {
-                gameSpeed += 0.2;
+        // Устанавливаем информацию о пользователе
+        function setUserInfo() {
+            const username = checkAuth();
+            if (username) {
+                document.getElementById('username-display').textContent = username;
+                document.getElementById('user-avatar').textContent = username.charAt(0).toUpperCase();
             }
         }
 
-        function draw() {
-            // Очистка экрана
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // Выход из системы
+        document.getElementById('logout-btn').addEventListener('click', function() {
+            showLoader();
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 500);
+        });
 
-            // Рисуем фон (небо)
-            ctx.fillStyle = '#87CEEB';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Рисуем облака
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
-            clouds.forEach(cloud => {
-                ctx.beginPath();
-                ctx.arc(cloud.x, cloud.y, cloud.width / 3, 0, Math.PI * 2);
-                ctx.arc(cloud.x + cloud.width / 3, cloud.y - 10, cloud.width / 4, 0, Math.PI * 2);
-                ctx.arc(cloud.x + cloud.width / 2, cloud.y, cloud.width / 3, 0, Math.PI * 2);
-                ctx.fill();
-            });
-
-            // Рисуем землю
-            ctx.fillStyle = '#8BC34A';
-            ctx.fillRect(0, canvas.height - 20, canvas.width, 20);
-
-            // Рисуем капибару
-            ctx.drawImage(capybaraImg, capybara.x, capybara.y, capybara.width, capybara.height);
-
-            // Рисуем кактусы
-            cacti.forEach(cactus => {
-                ctx.drawImage(cactusImg, cactus.x, cactus.y, cactus.width, cactus.height);
-            });
-
-            // Анимация бега (просто меняем размер для имитации)
-            capybara.frame++;
-            if (capybara.frame % 10 === 0 && !capybara.jumping) {
-                capybara.height = capybara.height === 40 ? 35 : 40;
-            }
-        }
-
-        function gameOver() {
-            isGameOver = true;
-            cancelAnimationFrame(gameLoopId);
-            clearInterval(cactusInterval);
-
-            // Обновляем рекорд
-            if (score > highScore) {
-                highScore = score;
-                localStorage.setItem('highScore', highScore);
-            }
-
-            // Показываем экран Game Over
-            finalScoreDisplay.textContent = `Score: ${score}`;
-            gameOverScreen.style.display = 'flex';
-        }
-
-        function gameLoop() {
-            if (!isGameOver) {
-                update();
-                draw();
-                gameLoopId = requestAnimationFrame(gameLoop);
-            }
-        }
-
-        // ====== ОБРАБОТЧИКИ СОБЫТИЙ ======
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' || e.key === 'ArrowUp') {
-                if (isGameOver) {
-                    initGame();
-                } else {
-                    jump();
-                }
+        // Поиск
+        document.getElementById('search-btn').addEventListener('click', performSearch);
+        document.getElementById('global-search').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                performSearch();
             }
         });
 
-        restartBtn.addEventListener('click', initGame);
+        function performSearch() {
+            const query = document.getElementById('global-search').value.trim();
+            if (query) {
+                showLoader();
+                // Здесь будет реализация поиска по всем разделам
+                setTimeout(() => {
+                    alert(`Поиск по запросу "${query}" будет выполнен во всех разделах`);
+                    hideLoader();
+                }, 1000);
+            }
+        }
 
-        // ====== ЗАПУСК ИГРЫ ======
-        initGame();
+        // Показ лоадера
+        function showLoader() {
+            document.getElementById('loader').classList.add('active');
+        }
+
+        // Скрытие лоадера
+        function hideLoader() {
+            document.getElementById('loader').classList.remove('active');
+        }
+
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', function() {
+            createParticles();
+            setUserInfo();
+            
+            // Добавляем задержку для плавного появления контента
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
     </script>
 </body>
 </html>
