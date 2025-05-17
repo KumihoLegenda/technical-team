@@ -113,10 +113,7 @@
             font-size: 14px;
         }
 
-        .logout-btn:hover {
-            background: var(--accent);
-            color: var(--bg);
-        }
+        
 
         .back-btn {
             background: transparent;
@@ -423,9 +420,8 @@
             <span>WikiBR</span>
         </a>
         
-        <div class="user-info">
-            <span id="username-display"> тут ваш ник</span>
-            <div class="user-avatar" id="user-avatar">А</div>
+         <div class="user-info">
+            <span id="username-display"></span>
         </div>
     </header>
     
@@ -514,10 +510,7 @@
         function getUsernameFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('user');
-        }
-        // Выход из системы
-        document.getElementById('logout-btn').addEventListener('click', function() {
-            window.location.href = 'login.html';
+    
         });
 
         // Создаем карточки оружия
