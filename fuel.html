@@ -44,23 +44,85 @@
         }
 
         /* Шапка */
-        .header {
-            padding: 20px 0;
-            border-bottom: 1px solid var(--border-light);
-            margin-bottom: 30px;
+       
+ .header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(26, 29, 36, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(0, 255, 231, 0.1);
+            position: relative;
+            z-index: 10;
         }
 
-        .header-title {
+        .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--accent);
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 24px;
+            gap: 10px;
+            text-decoration: none;
         }
 
-        .header-icon {
-            color: var(--accent-blue);
+        .logo i {
+            font-size: 22px;
         }
 
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: var(--bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        .logout-btn:hover {
+            background: var(--accent);
+            color: var(--bg);
+        }
+
+        .back-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: inherit;
+            font-size: 14px;
+            margin-right: 10px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
         /* Таблица */
         .table-container {
             background: var(--bg-card);
